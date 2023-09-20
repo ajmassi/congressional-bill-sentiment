@@ -1,0 +1,24 @@
+{
+    "folders": [
+        {
+            "name": "ROOT",
+            "path": "../"
+        },
+        {
+            "path": "../analyzer_nltk"
+        },
+        {
+            "path": "../analyzer_vader"
+        },
+        {
+            "path": "../bill_retriever"
+        },
+        {
+            "path": "../sentiment_aggregator"
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+        }
+    }
+}
