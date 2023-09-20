@@ -7,6 +7,14 @@ name = "pypi"
 kafka-python = "*"
 
 [dev-packages]
+pytest = "*"
+black = "*"
+flake8 = "*"
+flake8-bugbear = "*"
+flake8-deprecated = "*"
+flake8-executable = "*"
+bandit = "*"
+isort = "*"
 
 [requires]
 python_version = "3.11"
@@ -16,3 +24,7 @@ vadersentiment = "*"
 
 [analyzer_nltk]
 nltk = "*"
+
+[bill_retriever]
+requests = "*"
+pydantic-settings = "*"

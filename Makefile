@@ -28,3 +28,27 @@ down:
 
 logs:
 	docker compose logs -f
+
+#############################
+# Code Quality
+.PHONY: format, isort, flake8, black, bandit, test
+format: isort flake8 black bandit
+
+isort:
+	$(info ---------- ISORT ----------)
+	pipenv run isort .
+
+flake8:
+	$(info ---------- FLAKE8 ----------)
+	pipenv run flake8 . \
+	    --count --select=B,C,E,F,W,T4,B9 --max-complexity=18 \
+	    --ignore=E501 \
+	    --show-source --statistics
+
+black:
+	$(info ---------- BLACK ----------)
+	pipenv run black .
+
+bandit:
+	$(info ---------- BANDIT ----------)
+	pipenv run bandit -c "pyproject.toml" --recursive .
