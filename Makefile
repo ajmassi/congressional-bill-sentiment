@@ -42,7 +42,7 @@ flake8:
 	$(info ---------- FLAKE8 ----------)
 	pipenv run flake8 . \
 	    --count --select=B,C,E,F,W,T4,B9 --max-complexity=18 \
-	    --ignore=E501 \
+	    --ignore=E501,B950 \
 	    --show-source --statistics
 
 black:
