@@ -26,5 +26,5 @@ vadersentiment = "*"
 nltk = "*"
 
 [bill_retriever]
-requests = "*"
 pydantic-settings = "*"
+aiohttp = "*"

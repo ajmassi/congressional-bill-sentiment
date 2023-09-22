@@ -1,2 +1,5 @@
+# Configuration
+.env
+
 # Build Artifacts
 requirements.txt
