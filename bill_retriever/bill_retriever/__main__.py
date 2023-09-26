@@ -1,10 +1,19 @@
 import asyncio
 import json
+import logging.config
 import math
+import pathlib
 
 import aiohttp
 from kafka import KafkaProducer
 from settings import settings
+
+config_directory = pathlib.Path(__file__).parent.resolve()
+with open(config_directory.joinpath("logger.conf")) as logger_conf:
+    logging.config.dictConfig(json.load(logger_conf))
+
+log = logging.getLogger(__name__)
+
 
 producer = KafkaProducer(
     bootstrap_servers=settings.kafka_bootstrap_servers,
@@ -27,10 +36,10 @@ async def congress_api_bill_processing(session, url, param_offset, param_limit):
         if resp.ok:
             data = await resp.json()
             await process_bill_list(data.get("bills"))
+            log.info(f"Received successful response from {full_url!r}")
             return data
         else:
-            # TODO handle error
-            print("error")
+            log.error(f"URL {resp.url!r} resulted in error: {resp.reason}")
 
 
 async def partition_bills(congress):
@@ -43,6 +52,9 @@ async def partition_bills(congress):
         data = await congress_api_bill_processing(
             session, f"{settings.url_base}{congress}", 0, settings.url_param_bill_limit
         )
+
+        if not data:
+            return
 
         # Determine how many requests will be needed to retreive all bills
         remaining_reqs = math.floor(
@@ -69,4 +81,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    log.info("Bill Retrieval Complete")
     producer.close()
