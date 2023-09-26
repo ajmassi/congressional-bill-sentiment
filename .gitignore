@@ -1,5 +1,6 @@
 # Configuration
 .env
+bill_retriever/secrets/*
 
 # Build Artifacts
 requirements.txt
