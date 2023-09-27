@@ -4,7 +4,8 @@ RUN apk update && apk add curl
 COPY requirements.txt ./
 RUN pip install --require-hashes -r requirements.txt
 
-COPY __main__.py ./
+COPY bill_retriever/ ./bill_retriever/
+COPY secrets/ ./secrets/
 
 # Manual Testing
-# ENTRYPOINT ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]

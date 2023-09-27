@@ -13,6 +13,7 @@ ENV PATH=$PATH:/home/$user_name/.local/bin
 ENV PYTHON=/usr/local/bin/python
 
 COPY requirements.txt ./
+COPY .env ./
 RUN pip install --require-hashes -r requirements.txt
 
 # Manual Testing
