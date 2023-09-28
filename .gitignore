@@ -1,7 +1,6 @@
 # Configuration
 .env
+*/deps/
 
 # Build Artifacts
 requirements.txt
-*.egg-info/
-abstract_analyzer/build/
