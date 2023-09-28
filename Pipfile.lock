@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5c9807cebe993e0842b435d2171f301a637cffac65f9155c35c3cb4fee3cafc4"
+            "sha256": "26a1c17d7e275a7d1d1cebc2fbbabeae67f9f5ab0bac9f30ab8eea6f65421970"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,10 @@
         ]
     },
     "analyzer_nltk": {
+        "abstract-analyzer": {
+            "path": "./abstract_analyzer",
+            "version": "==0.1.0"
+        },
         "click": {
             "hashes": [
                 "sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28",
@@ -144,6 +148,10 @@
         }
     },
     "analyzer_vader": {
+        "abstract-analyzer": {
+            "path": "./abstract_analyzer",
+            "version": "==0.1.0"
+        },
         "certifi": {
             "hashes": [
                 "sha256:539cc1d13202e33ca466e88b2807e29f4c13049d6d87031a3c110744495cb082",
@@ -864,6 +872,10 @@
         }
     },
     "develop": {
+        "abstract-analyzer": {
+            "editable": true,
+            "path": "./abstract_analyzer"
+        },
         "attrs": {
             "hashes": [
                 "sha256:1f28b4522cdc2fb4256ac1a020c78acf9cba2c6b461ccd2c126f3aa8e8335d04",

@@ -5,6 +5,9 @@
             "path": "../"
         },
         {
+            "path": "../abstract_analyzer"
+        },
+        {
             "path": "../analyzer_nltk"
         },
         {

@@ -15,15 +15,18 @@ flake8-deprecated = "*"
 flake8-executable = "*"
 bandit = "*"
 isort = "*"
+abstract-analyzer = {editable = true, path = "./abstract_analyzer"}
 
 [requires]
 python_version = "3.11"
 
 [analyzer_vader]
 vadersentiment = "*"
+abstract-analyzer = {path = "./abstract_analyzer"}
 
 [analyzer_nltk]
 nltk = "*"
+abstract-analyzer = {path = "./abstract_analyzer"}
 
 [bill_retriever]
 pydantic-settings = "*"
