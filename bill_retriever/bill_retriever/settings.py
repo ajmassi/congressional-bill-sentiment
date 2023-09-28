@@ -1,5 +1,6 @@
 import pathlib
 
+from pydantic import Extra
 from pydantic_settings import BaseSettings
 
 
@@ -20,6 +21,7 @@ class Settings(BaseSettings):
         case_sensitive = False
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = Extra.allow
 
         # absolute path for current directory
         secrets_dir = f"{pathlib.Path(__file__).parent.parent.resolve()}/secrets"
