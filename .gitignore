@@ -1,6 +1,6 @@
 # Configuration
 .env
-*/deps/
+deps/
 
 # Build Artifacts
 requirements.txt
