@@ -1,6 +1,6 @@
 #############################
 # Dev environment
-.PHONY: dev-init dep-lock build-abstract-analyzer issue-abstract-analyzer-dist prep-services
+.PHONY: dev-init dep-lock build-abstract-analyzer distribute-abstract-analyzer prep-services
 
 dev-init:
 	pipenv sync --categories="packages analyzer_nltk analyzer_vader bill_retriever sentiment_aggregator" -v
@@ -13,7 +13,7 @@ dep-lock:
 	pipenv requirements --hash --categories="sentiment_aggregator" > ./sentiment_aggregator/requirements.txt
 
 build-abstract-analyzer:
-	python3 ./abstract_analyzer/setup.py sdist
+	cd ./abstract_analyzer/; python3 ./setup.py sdist
 	mkdir -p ./deps/
 	cp ./abstract_analyzer/dist/abstract_analyzer*.tar.gz ./deps/
 
