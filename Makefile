@@ -3,7 +3,8 @@
 .PHONY: dev-init dep-lock build-abstract-analyzer distribute-abstract-analyzer prep-services
 
 dev-init:
-	pipenv sync --categories="packages analyzer_nltk analyzer_vader bill_retriever sentiment_aggregator" -v
+	pipenv --rm
+	pipenv sync --categories="packages dev-packages analyzer_nltk analyzer_vader bill_retriever sentiment_aggregator" -v
 
 dep-lock:
 	pipenv requirements --hash --categories="packages" > ./requirements.txt
