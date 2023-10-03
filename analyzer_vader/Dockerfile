@@ -1,7 +1,9 @@
 FROM kafka-client-base:latest
 
 COPY requirements.txt ./
-RUN pip install --require-hashes -r requirements.txt
+COPY deps/ ./deps/
+RUN pipenv install -r requirements.txt
 
-# Manual Testing
-# ENTRYPOINT ["tail", "-f", "/dev/null"]
+COPY analyzer_vader/ ./analyzer_vader/
+
+CMD [ "pipenv", "run", "python", "analyzer_vader" ]

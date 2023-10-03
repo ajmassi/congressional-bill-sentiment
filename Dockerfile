@@ -1,4 +1,4 @@
-FROM python:3.11.4-alpine as kafka-client-base
+FROM python:3.11.5-alpine as kafka-client-base
 
 ARG user_name
 ARG user_id
@@ -12,9 +12,10 @@ USER $user_name
 ENV PATH=$PATH:/home/$user_name/.local/bin
 ENV PYTHON=/usr/local/bin/python
 
+RUN pip install pipenv
 COPY requirements.txt ./
 COPY .env ./
-RUN pip install --require-hashes -r requirements.txt
+RUN pipenv install -r requirements.txt
 
 # Manual Testing
 # ENTRYPOINT ["tail", "-f", "/dev/null"]

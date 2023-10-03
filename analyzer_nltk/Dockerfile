@@ -1,7 +1,8 @@
 FROM kafka-client-base:latest
 
 COPY requirements.txt ./
-RUN pip install --require-hashes -r requirements.txt
+COPY deps/ ./deps/
+RUN pipenv install -r requirements.txt
 
 # Manual Testing
 # ENTRYPOINT ["tail", "-f", "/dev/null"]
