@@ -10,8 +10,8 @@ from abstract_analyzer.settings import settings
 class SentimentAnalyzer(ABC):
     """
     Abstract class to provide skeleton for various sentiment analyzers.
-    Subclasses need to only define "calculate_sentiment()". 
-    Calling functions can use "start()" if synchronous or call "process_bills()" 
+    Subclasses need to only define "calculate_sentiment()".
+    Calling functions can use "start()" if synchronous or call "process_bills()"
         directly if asynchronous.
     """
 
@@ -37,7 +37,7 @@ class SentimentAnalyzer(ABC):
     async def process_bills(self) -> None:
         """
         Coordinates processing of bills starting with reading messages from Kafka topic,
-            forwarding to sentiment analyzer, and then handing sentiment data to 
+            forwarding to sentiment analyzer, and then handing sentiment data to
             Kafka producer.
         """
         for bill in self.consumer:
