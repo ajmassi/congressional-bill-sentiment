@@ -6,5 +6,4 @@ RUN pipenv install -r requirements.txt
 
 COPY analyzer_vader/ ./analyzer_vader/
 
-# Manual Testing
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+CMD [ "pipenv", "run", "python", "analyzer_vader" ]
