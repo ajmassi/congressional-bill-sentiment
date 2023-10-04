@@ -24,8 +24,8 @@ python_version = "3.11"
 vadersentiment = "*"
 abstract-analyzer = {file = "deps/abstract_analyzer-0.1.0.tar.gz"}
 
-[analyzer_nltk]
-nltk = "*"
+[analyzer_textblob]
+textblob = "*"
 abstract-analyzer = {file = "deps/abstract_analyzer-0.1.0.tar.gz"}
 
 [bill_retriever]

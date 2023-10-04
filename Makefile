@@ -4,11 +4,12 @@
 
 dev-init:
 	pipenv --rm
-	pipenv sync --categories="packages dev-packages analyzer_nltk analyzer_vader bill_retriever sentiment_aggregator" -v
+
+	pipenv sync --categories="packages dev-packages analyzer_textblob analyzer_vader bill_retriever sentiment_aggregator" -v
 
 dep-lock:
 	pipenv requirements --hash --categories="packages" > ./requirements.txt
-	pipenv requirements --hash --categories="analyzer_nltk" > ./analyzer_nltk/requirements.txt
+	pipenv requirements --hash --categories="analyzer_textblob" > ./analyzer_textblob/requirements.txt
 	pipenv requirements --hash --categories="analyzer_vader" > ./analyzer_vader/requirements.txt
 	pipenv requirements --hash --categories="bill_retriever" > ./bill_retriever/requirements.txt
 	pipenv requirements --hash --categories="sentiment_aggregator" > ./sentiment_aggregator/requirements.txt
@@ -20,7 +21,7 @@ build-abstract-analyzer:
 
 distribute-abstract-analyzer:
 	cp ./abstract_analyzer/dist/abstract_analyzer*.tar.gz ./analyzer_vader/deps/
-	cp ./abstract_analyzer/dist/abstract_analyzer*.tar.gz ./analyzer_nltk/deps/
+	cp ./abstract_analyzer/dist/abstract_analyzer*.tar.gz ./analyzer_textblob/deps/
 
 prep-services:
 	make build-abstract-analyzer
