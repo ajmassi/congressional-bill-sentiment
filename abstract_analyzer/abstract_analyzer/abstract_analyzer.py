@@ -15,10 +15,11 @@ class SentimentAnalyzer(ABC):
         directly if asynchronous.
     """
 
-    def __init__(self):
+    def __init__(self, consumer_group_id: str):
         self.consumer = KafkaConsumer(
             settings.kafka_bill_raw_topic,
             bootstrap_servers=settings.kafka_bootstrap_servers,
+            group_id=consumer_group_id,
         )
         self.producer = KafkaProducer(
             bootstrap_servers=settings.kafka_bootstrap_servers,
@@ -27,7 +28,7 @@ class SentimentAnalyzer(ABC):
 
     async def produce_processed_bill(self, raw_bill: dict, sentiment: dict) -> dict:
         """Combine the original bill with sentiment and forward on Kafka topic."""
-        processed_bill = dict(raw_bill, **sentiment)
+        processed_bill = {"congress": raw_bill.get("congress"), "number": raw_bill.get("number"), **sentiment}
         self.producer.send(settings.kafka_bill_processed_topic, processed_bill)
 
     @abstractmethod

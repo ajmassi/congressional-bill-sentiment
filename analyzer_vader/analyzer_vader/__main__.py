@@ -10,12 +10,12 @@ config_directory = pathlib.Path(__file__).parent.resolve()
 with open(config_directory.joinpath("logger.conf")) as logger_conf:
     logging.config.dictConfig(json.load(logger_conf))
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("analyzer_vader")
 
 
 class VaderAnalyzer(SentimentAnalyzer):
     def __init__(self):
-        super().__init__()
+        super().__init__(consumer_group_id="analyzer_vader")
         self.analyzer = SentimentIntensityAnalyzer()
 
     async def calculate_sentiment(self, raw_bill: dict) -> dict:
