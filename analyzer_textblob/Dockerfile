@@ -4,5 +4,6 @@ COPY requirements.txt ./
 COPY deps/ ./deps/
 RUN pipenv install -r requirements.txt
 
-# Manual Testing
-# ENTRYPOINT ["tail", "-f", "/dev/null"]
+COPY analyzer_textblob/ ./analyzer_textblob/
+
+CMD [ "pipenv", "run", "python", "analyzer_textblob" ]

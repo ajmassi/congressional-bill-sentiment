@@ -8,7 +8,7 @@
             "path": "../abstract_analyzer"
         },
         {
-            "path": "../analyzer_nltk"
+            "path": "../analyzer_textblob"
         },
         {
             "path": "../analyzer_vader"
