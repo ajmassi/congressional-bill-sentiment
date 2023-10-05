@@ -42,6 +42,15 @@ services:
     networks:
       - bill-sentiment-network
 
+  sentiment-aggregator:
+    image: sentiment-aggregator
+    build: ./sentiment_aggregator
+    depends_on:
+      kafka-client-base:
+        condition: service_completed_successfully
+    networks:
+      - bill-sentiment-network
+
   kafka:
     image: docker.io/bitnami/kafka:3.5
     ports:

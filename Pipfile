@@ -31,3 +31,6 @@ abstract-analyzer = {file = "deps/abstract_analyzer-0.1.0.tar.gz"}
 [bill_retriever]
 pydantic-settings = "*"
 aiohttp = "*"
+
+[sentiment_aggregator]
+pydantic-settings = "*"
