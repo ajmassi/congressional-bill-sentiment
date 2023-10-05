@@ -19,13 +19,12 @@ class TextBlobAnalyzer(SentimentAnalyzer):
 
     async def calculate_sentiment(self, raw_bill: dict) -> dict:
         sentiment = TextBlob(raw_bill.get("title")).sentiment._asdict()
-        log.debug(
-            f"Calculated Sentiment for Bill:\n{sentiment}\n{raw_bill.get('title')}"
-        )
+        log.debug(f"Sentiment {sentiment}: {raw_bill.get('title')}")
         return sentiment
 
 
 def main():
+    log.info("Starting TextBlobAnalyzer")
     analyzer = TextBlobAnalyzer()
     analyzer.start()
 

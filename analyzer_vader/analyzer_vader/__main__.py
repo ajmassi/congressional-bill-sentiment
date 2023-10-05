@@ -20,13 +20,12 @@ class VaderAnalyzer(SentimentAnalyzer):
 
     async def calculate_sentiment(self, raw_bill: dict) -> dict:
         sentiment = self.analyzer.polarity_scores(raw_bill.get("title"))
-        log.debug(
-            f"Calculated Sentiment for Bill:\n{sentiment}\n{raw_bill.get('title')}"
-        )
+        log.debug(f"Sentiment {sentiment}: {raw_bill.get('title')}")
         return sentiment
 
 
 def main():
+    log.info("Starting VaderAnalyzer")
     analyzer = VaderAnalyzer()
     analyzer.start()
 

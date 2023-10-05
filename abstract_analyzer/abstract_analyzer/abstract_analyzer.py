@@ -1,10 +1,13 @@
 import asyncio
 import json
 from abc import ABC, abstractmethod
+import logging
 
 from kafka import KafkaConsumer, KafkaProducer
 
 from abstract_analyzer.settings import settings
+
+log = logging.getLogger("abstract_analyzer")
 
 
 class SentimentAnalyzer(ABC):
@@ -29,6 +32,7 @@ class SentimentAnalyzer(ABC):
     async def produce_processed_bill(self, raw_bill: dict, sentiment: dict) -> dict:
         """Combine the original bill with sentiment and forward on Kafka topic."""
         processed_bill = {"congress": raw_bill.get("congress"), "number": raw_bill.get("number"), **sentiment}
+        log.debug(f"Producing on {settings.kafka_bill_processed_topic}: {processed_bill}")
         self.producer.send(settings.kafka_bill_processed_topic, processed_bill)
 
     @abstractmethod
