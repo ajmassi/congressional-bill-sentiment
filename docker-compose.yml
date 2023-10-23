@@ -7,6 +7,8 @@ volumes:
 networks:
   bill-sentiment-network:
     driver: bridge
+  neo4j-network:
+    driver: bridge
 
 services:
   kafka-client-base: &base
@@ -48,6 +50,8 @@ services:
     depends_on:
       kafka-client-base:
         condition: service_completed_successfully
+      neo4j:
+        condition: service_healthy
     networks:
       - bill-sentiment-network
 
@@ -70,3 +74,18 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+
+  neo4j:
+    image: docker.io/bitnami/neo4j:latest
+    ports:
+      - '7474:7474'
+      - '7473:7473'
+      - '7687:7687'
+    networks:
+      - neo4j-network
+    healthcheck:
+      test: wget http://localhost:7474 || exit 1
+      interval: 1s
+      timeout: 10s
+      retries: 20
+      start_period: 3s

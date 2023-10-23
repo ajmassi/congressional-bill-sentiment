@@ -34,3 +34,4 @@ aiohttp = "*"
 
 [sentiment_aggregator]
 pydantic-settings = "*"
+neo4j = "*"
