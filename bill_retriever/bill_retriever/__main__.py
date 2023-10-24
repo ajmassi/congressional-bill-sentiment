@@ -21,10 +21,22 @@ producer = KafkaProducer(
 )
 
 
+def flatten_dict(dd, separator="_", prefix=""):
+    return (
+        {
+            prefix + separator + k if prefix else k: v
+            for kk, vv in dd.items()
+            for k, v in flatten_dict(vv, separator, kk).items()
+        }
+        if isinstance(dd, dict)
+        else {prefix: dd}
+    )
+
+
 async def process_bill_list(bills):
     """Split retrieved bills and push to kafka topic."""
     for bill in bills:
-        producer.send(settings.kafka_bill_raw_topic, bill)
+        producer.send(settings.kafka_bill_raw_topic, flatten_dict(bill))
 
 
 async def congress_api_bill_processing(session, url, param_offset, param_limit):
