@@ -32,8 +32,8 @@ class SentimentAnalyzer(ABC):
     async def produce_processed_bill(self, raw_bill: dict, sentiment: dict) -> dict:
         """Combine the original bill with sentiment and forward on Kafka topic."""
         processed_bill = {
-            "congress": raw_bill.get("congress"),
             "number": raw_bill.get("number"),
+            "type": raw_bill.get("type"),
             **sentiment,
         }
         log.debug(
