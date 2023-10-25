@@ -3,6 +3,7 @@ import logging.config
 import pathlib
 
 from kafka import KafkaConsumer
+from kafka.consumer.fetcher import ConsumerRecord
 from neo4j import GraphDatabase, Record
 from neo4j.exceptions import ClientError
 from settings import settings
@@ -25,6 +26,7 @@ consumer.subscribe(topics=["bill.raw", "bill.processed"])
 
 
 def initialize_database() -> None:
+    """ Set initial conditions for Labels including required/unique fields """
     with db_driver.session() as session:
         try:
             session.run(
@@ -40,6 +42,7 @@ def initialize_database() -> None:
 
 
 def create_or_update_node_bill(bill_data: dict) -> Record:
+    """ Create a new Bill node or update existing node as appropriate. """
     def managed_tx(tx, bill_data: dict) -> Record:
         query = """
                 MERGE (bill:Bill {number: $bill_data.number, type: $bill_data.type})
@@ -62,6 +65,7 @@ def create_or_update_node_bill(bill_data: dict) -> Record:
 
 
 def create_node_congress(congress_data: dict) -> Record:
+    """ Create a new Congress node. """
     def managed_tx(tx, congress_data: dict) -> Record:
         query = """
                 MERGE (congress:Congress {number: $congress_data.number})
@@ -82,6 +86,7 @@ def create_node_congress(congress_data: dict) -> Record:
 
 
 def create_relationship_congress_bill(congress_data: dict, bill_data: dict) -> Record:
+    """ Create relationship between a Congress node and a Bill node. """
     def managed_tx(tx, congress_data: dict, bill_data: dict) -> Record:
         query = """
                 MATCH (congress:Congress), (bill:Bill)
@@ -103,24 +108,38 @@ def create_relationship_congress_bill(congress_data: dict, bill_data: dict) -> R
             log.error(e)
 
 
+def handle_bill_raw(bill_record: ConsumerRecord) -> None:
+    """ Process messages from the bill.raw topic """
+    bill = bill_record.value
+    _bill = create_or_update_node_bill(bill)
+    _congress = create_node_congress({"number": bill.get("congress")})
+    _relationship = create_relationship_congress_bill(
+        {"number": bill.get("congress")}, bill
+    )
+    log.info(f"PROCESSED {_bill} {_congress} {_relationship}")
+
+
+def handle_bill_processed(bill_record: ConsumerRecord) -> None:
+    """ Process messages from the bill.processed topic """
+    bill = bill_record.value
+    _bill = create_or_update_node_bill(bill)
+    log.info(f"PROCESSED {_bill}")
+
+
+TOPIC_HANDLER_MAPPING = {
+    settings.kafka_bill_raw_topic: handle_bill_raw,
+    settings.kafka_bill_processed_topic: handle_bill_processed,
+}
+
+
 def consume_bills() -> None:
+    """ Read messages from subscribed Kafka topic(s) and call appropriate handling function. """
     for bill_record in consumer:
         log.info(f"Processing {bill_record.topic}: {bill_record.value}")
-        match bill_record.topic:
-            case settings.kafka_bill_raw_topic:
-                bill = bill_record.value
-                _bill = create_or_update_node_bill(bill)
-                _congress = create_node_congress({"number": bill.get("congress")})
-                _relationship = create_relationship_congress_bill(
-                    {"number": bill.get("congress")}, bill
-                )
-                log.info(f"PROCESSED {_bill} {_congress} {_relationship}")
-            case settings.kafka_bill_processed_topic:
-                bill = bill_record.value
-                _bill = create_or_update_node_bill(bill)
-                log.info(f"PROCESSED {_bill}")
-            case _:
-                log.critical(f"Unexpected topic message received: {bill_record}")
+        try:
+            TOPIC_HANDLER_MAPPING.get(bill_record.topic)(bill_record)
+        except TypeError:
+            log.critical(f"Unexpected topic message received: {bill_record}")
 
 
 if __name__ == "__main__":

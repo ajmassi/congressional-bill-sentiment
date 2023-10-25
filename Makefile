@@ -4,7 +4,6 @@
 
 dev-init:
 	pipenv --rm
-
 	pipenv sync --categories="packages dev-packages analyzer_textblob analyzer_vader bill_retriever sentiment_aggregator" -v
 
 dep-lock:
