@@ -1,10 +1,11 @@
 import json
 import logging.config
 import pathlib
+import asyncio
 
 from kafka import KafkaConsumer
 from kafka.consumer.fetcher import ConsumerRecord
-from neo4j import GraphDatabase, Record
+from neo4j import AsyncGraphDatabase, Record
 from neo4j.exceptions import ClientError
 from settings import settings
 
@@ -14,7 +15,7 @@ with open(config_directory.joinpath("logger.conf")) as logger_conf:
 
 log = logging.getLogger("sentiment-aggregator")
 
-db_driver = GraphDatabase.driver(
+db_driver = AsyncGraphDatabase.driver(
     settings.neo4j_url, auth=(settings.neo4j_user, settings.neo4j_user_password)
 )
 
@@ -25,14 +26,14 @@ consumer = KafkaConsumer(
 consumer.subscribe(topics=["bill.raw", "bill.processed"])
 
 
-def initialize_database() -> None:
+async def initialize_database() -> None:
     """ Set initial conditions for Labels including required/unique fields """
-    with db_driver.session() as session:
+    async with db_driver.session() as session:
         try:
-            session.run(
+            await session.run(
                 "CREATE CONSTRAINT FOR (bill:Bill) REQUIRE (bill.number, bill.type) IS UNIQUE;"
             )
-            session.run(
+            await session.run(
                 "CREATE CONSTRAINT FOR (congress:Congress) REQUIRE congress.number IS UNIQUE;"
             )
         except ClientError as e:
@@ -41,9 +42,9 @@ def initialize_database() -> None:
             )
 
 
-def create_or_update_node_bill(bill_data: dict) -> Record:
+async def create_or_update_node_bill(bill_data: dict) -> Record:
     """ Create a new Bill node or update existing node as appropriate. """
-    def managed_tx(tx, bill_data: dict) -> Record:
+    async def managed_tx(tx, bill_data: dict) -> Record:
         query = """
                 MERGE (bill:Bill {number: $bill_data.number, type: $bill_data.type})
                 ON CREATE
@@ -52,42 +53,42 @@ def create_or_update_node_bill(bill_data: dict) -> Record:
                   SET bill += $bill_data
                 RETURN bill;
                 """
-        result = tx.run(query, bill_data=bill_data)
-        record = result.single()
+        result = await tx.run(query, bill_data=bill_data)
+        record = await result.single()
         return record
 
-    with db_driver.session() as session:
+    async with db_driver.session() as session:
         try:
-            record = session.execute_write(managed_tx, bill_data)
+            record = await session.execute_write(managed_tx, bill_data)
             return record
         except ClientError as e:
             log.error(e)
 
 
-def create_node_congress(congress_data: dict) -> Record:
+async def create_node_congress(congress_data: dict) -> Record:
     """ Create a new Congress node. """
-    def managed_tx(tx, congress_data: dict) -> Record:
+    async def managed_tx(tx, congress_data: dict) -> Record:
         query = """
                 MERGE (congress:Congress {number: $congress_data.number})
                 ON CREATE
                   SET congress = $congress_data
                 RETURN congress;
                 """
-        result = tx.run(query, congress_data=congress_data)
-        record = result.single()
+        result = await tx.run(query, congress_data=congress_data)
+        record = await result.single()
         return record
 
-    with db_driver.session() as session:
+    async with db_driver.session() as session:
         try:
-            record = session.execute_write(managed_tx, congress_data)
+            record = await session.execute_write(managed_tx, congress_data)
             return record
         except ClientError as e:
             log.error(e)
 
 
-def create_relationship_congress_bill(congress_data: dict, bill_data: dict) -> Record:
+async def create_relationship_congress_bill(congress_data: dict, bill_data: dict) -> Record:
     """ Create relationship between a Congress node and a Bill node. """
-    def managed_tx(tx, congress_data: dict, bill_data: dict) -> Record:
+    async def managed_tx(tx, congress_data: dict, bill_data: dict) -> Record:
         query = """
                 MATCH (congress:Congress), (bill:Bill)
                 WHERE congress.number = $congress_data.number AND
@@ -96,33 +97,33 @@ def create_relationship_congress_bill(congress_data: dict, bill_data: dict) -> R
                 CREATE (congress)-[:PASSED]->(bill)
                 RETURN congress, bill;
                 """
-        result = tx.run(query, congress_data=congress_data, bill_data=bill_data)
-        record = result.single()
+        result = await tx.run(query, congress_data=congress_data, bill_data=bill_data)
+        record = await result.single()
         return record
 
-    with db_driver.session() as session:
+    async with db_driver.session() as session:
         try:
-            record = session.execute_write(managed_tx, congress_data, bill_data)
+            record = await session.execute_write(managed_tx, congress_data, bill_data)
             return record
         except ClientError as e:
             log.error(e)
 
 
-def handle_bill_raw(bill_record: ConsumerRecord) -> None:
+async def handle_bill_raw(bill_record: ConsumerRecord) -> None:
     """ Process messages from the bill.raw topic """
     bill = bill_record.value
-    _bill = create_or_update_node_bill(bill)
-    _congress = create_node_congress({"number": bill.get("congress")})
-    _relationship = create_relationship_congress_bill(
+    _bill = await create_or_update_node_bill(bill)
+    _congress = await create_node_congress({"number": bill.get("congress")})
+    _relationship = await create_relationship_congress_bill(
         {"number": bill.get("congress")}, bill
     )
     log.info(f"PROCESSED {_bill} {_congress} {_relationship}")
 
 
-def handle_bill_processed(bill_record: ConsumerRecord) -> None:
+async def handle_bill_processed(bill_record: ConsumerRecord) -> None:
     """ Process messages from the bill.processed topic """
     bill = bill_record.value
-    _bill = create_or_update_node_bill(bill)
+    _bill = await create_or_update_node_bill(bill)
     log.info(f"PROCESSED {_bill}")
 
 
@@ -132,16 +133,21 @@ TOPIC_HANDLER_MAPPING = {
 }
 
 
-def consume_bills() -> None:
+async def consume_bills() -> None:
     """ Read messages from subscribed Kafka topic(s) and call appropriate handling function. """
     for bill_record in consumer:
         log.info(f"Processing {bill_record.topic}: {bill_record.value}")
         try:
-            TOPIC_HANDLER_MAPPING.get(bill_record.topic)(bill_record)
-        except TypeError:
+            await TOPIC_HANDLER_MAPPING.get(bill_record.topic)(bill_record)
+        except TypeError as e:
             log.critical(f"Unexpected topic message received: {bill_record}")
 
 
+def main():
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(consume_bills())
+    loop.close()
+
+
 if __name__ == "__main__":
-    consume_bills()
-    pass
+    main()
