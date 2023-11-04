@@ -34,7 +34,7 @@ class SentimentAnalyzer(ABC):
         processed_bill = {
             "number": raw_bill.get("number"),
             "type": raw_bill.get("type"),
-            **sentiment,
+            **dict((f"{self.__class__.__name__}_{k}", v) for k, v in sentiment.items()),
         }
         log.debug(
             f"Producing on {settings.kafka_bill_processed_topic}: {processed_bill}"
