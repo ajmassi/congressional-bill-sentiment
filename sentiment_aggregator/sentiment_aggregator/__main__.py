@@ -91,8 +91,9 @@ def create_relationship_congress_bill(congress_data: dict, bill_data: dict) -> R
         query = """
                 MATCH (congress:Congress), (bill:Bill)
                 WHERE congress.number = $congress_data.number AND
-                      bill.number = $bill_data.number AND
-                      bill.type = $bill_data.type
+                    bill.number = $bill_data.number AND
+                    bill.type = $bill_data.type AND
+                    NOT (congress)-[:PASSED]->(bill)
                 CREATE (congress)-[:PASSED]->(bill)
                 RETURN congress, bill;
                 """
