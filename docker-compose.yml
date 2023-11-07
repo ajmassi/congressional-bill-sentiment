@@ -21,6 +21,8 @@ services:
     depends_on:
       kafka-client-base:
         condition: service_completed_successfully
+      kafka-init:
+        condition: service_completed_successfully
     networks:
       - kafka-network
       
@@ -30,8 +32,8 @@ services:
     depends_on:
       kafka-client-base:
         condition: service_completed_successfully
-      kafka:
-        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
     networks:
       - kafka-network
 
@@ -41,8 +43,8 @@ services:
     depends_on:
       kafka-client-base:
         condition: service_completed_successfully
-      kafka:
-        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
     networks:
       - kafka-network
 
@@ -52,8 +54,8 @@ services:
     depends_on:
       kafka-client-base:
         condition: service_completed_successfully
-      kafka:
-        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
       neo4j:
         condition: service_healthy
     networks:
@@ -79,11 +81,21 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
-    healthcheck:
-      test: kafka-cluster.sh cluster-id --bootstrap-server localhost:9092 || exit 1
-      interval: 1s
-      timeout: 60s
-      retries: 60
+
+  kafka-init:
+    image: docker.io/bitnami/kafka:3.5
+    depends_on:
+      - kafka
+    networks:
+      - kafka-network
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      kafka-topics.sh --bootstrap-server kafka:9092 --list
+      kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic bill.raw --replication-factor 1 --partitions 1
+      kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic bill.processed --replication-factor 1 --partitions 1
+      kafka-topics.sh --bootstrap-server kafka:9092 --list
+      "
 
   neo4j:
     image: docker.io/bitnami/neo4j:latest
