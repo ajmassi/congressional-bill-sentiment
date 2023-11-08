@@ -90,9 +90,9 @@ Within the root directory run the following:
 make build
 make up
 ```
-**Note:** Currently the healthcheck for Neo4j is incorrect, this means that the following should be run to fix `sentiment-analyzer`.
+**Note:** Currently the healthcheck for Neo4j is incorrect, this means that the following should be run to fix `sentiment-aggregator`.
 ```
-docker compose restart sentiment-analyzer
+docker compose restart sentiment-aggregator
 ```
 
 #### Stop Everything
@@ -104,5 +104,5 @@ make down
 #### View Logs
 Logs are best accessed directly, for example:
 ```
-docker compose logs -f sentiment-analyzer
+docker compose logs -f sentiment-aggregator
 ```
