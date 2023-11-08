@@ -7,6 +7,10 @@ class Settings(BaseSettings):
     kafka_bill_raw_topic: str
     kafka_bill_processed_topic: str
 
+    neo4j_url: str
+    neo4j_user: str
+    neo4j_user_password: str
+
     class Config:
         env_prefix = ""
         case_sensitive = False
